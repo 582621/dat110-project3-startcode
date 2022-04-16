@@ -81,18 +81,25 @@ public class FileManager {
     	
     	// Task2: assign a replica as the primary for this file. Hint, see the slide (project 3) on Canvas
     	
+
     	// create replicas of the filename
+    	Random rnd = new Random();
+    	int index = rnd.nextInt(Util.numReplicas-1);
+    	
+    	createReplicaFiles();
     	
 		// iterate over the replicas
-    	
     	// for each replica, find its successor by performing findSuccessor(replica)
-    	
     	// call the addKey on the successor and add the replica
-    	
     	// call the saveFileContent() on the successor
-    	
     	// increment counter
-    	
+
+    	for(BigInteger replica : replicafiles) {
+    		NodeInterface successor = chordnode.findSuccessor(replica);
+    		successor.addKey(replica);
+    		successor.saveFileContent(filename, replica, bytesOfFile, counter == index);
+        	counter++;
+    	}    	
     		
 		return counter;
     }
@@ -107,17 +114,20 @@ public class FileManager {
 		
 		this.filename = filename;
 		Set<Message> succinfo = new HashSet<Message>();
+		
 		// Task: Given a filename, find all the peers that hold a copy of this file
 		
 		// generate the N replicas from the filename by calling createReplicaFiles()
+		createReplicaFiles();
 		
 		// it means, iterate over the replicas of the file
-		
-		// for each replica, do findSuccessor(replica) that returns successor s.
-		
-		// get the metadata (Message) of the replica from the successor, s (i.e. active peer) of the file
-		
-		// save the metadata in the set succinfo.
+		for(BigInteger replica : replicafiles) {
+			// for each replica, do findSuccessor(replica) that returns successor s.
+			NodeInterface successor = chordnode.findSuccessor(replica);
+			// get the metadata (Message) of the replica from the successor, s (i.e. active peer) of the file
+			// save the metadata in the set succinfo.
+			succinfo.add(successor.getFilesMetadata(replica));
+		}		
 		
 		this.activeNodesforFile = succinfo;
 		
