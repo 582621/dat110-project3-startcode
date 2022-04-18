@@ -137,8 +137,9 @@ public class FileManager {
 	/**
 	 * Find the primary server - Remote-Write Protocol
 	 * @return 
+	 * @throws RemoteException 
 	 */
-	public NodeInterface findPrimaryOfItem() {
+	public NodeInterface findPrimaryOfItem() throws RemoteException {
 
 		// Task: Given all the active peers of a file (activeNodesforFile()), find which is holding the primary copy
 		
@@ -150,6 +151,13 @@ public class FileManager {
 		
 		// return the primary
 		
+		Set<Message> activeNodes = requestActiveNodesForFile(filename);
+		
+		for(Message m : activeNodes) {
+			if(m.isPrimaryServer()) {
+				return Util.getProcessStub(m.getNodeIP(), m.getPort());
+			}
+		}
 		return null; 
 	}
 	

@@ -26,25 +26,26 @@ public class ChordLookup {
 		this.node = node;
 	}
 	
-public NodeInterface findSuccessor(BigInteger key) throws RemoteException {
+	public NodeInterface findSuccessor(BigInteger key) throws RemoteException {
 		
 		// ask this node to find the successor of key
 		
+		NodeInterface succ = node.getSuccessor();
 		// get the successor of the node
-		NodeInterface successor = node.getSuccessor();
+		NodeInterface stub = Util.getProcessStub(succ.getNodeName(), succ.getPort());
 		
 		// get the stub for this successor (Util.getProcessStub())
-		NodeInterface succStub = Util.getProcessStub(successor.getNodeName(), successor.getPort());
 		
-		System.out.println(key + " | " + node.getNodeID().add(new BigInteger("1")) + " | " + successor.getNodeID());
 		// check that key is a member of the set {nodeid+1,...,succID} i.e. (nodeid+1 <= key <= succID) using the ComputeLogic
-		if(Util.computeLogic(key, node.getNodeID().add(BigInteger.ONE), succStub.getNodeID())) {
-			// if logic returns true, then return the successor
-			return succStub;
-		}else { 
+		// (id,lower,upper)
+		if (Util.computeLogic(key, node.getNodeID().add(BigInteger.ONE), stub.getNodeID())) {
+			// if logic returns true, then return the successor 
+			return stub;
+		}else {
+			NodeInterface highest = findHighestPredecessor(key);
 			// if logic returns false; call findHighestPredecessor(key)
-			// do return highest_pred.findSuccessor(key) - This is a recursive call until logic returns true
-			return findHighestPredecessor(key).findSuccessor(key);
+			// do return highest_pred.findSuccessor(key) - This is a recursive call until logic returns true				
+		return	highest.findSuccessor(key); 		
 		}
 
 		
